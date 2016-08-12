@@ -10,13 +10,6 @@ import Foundation
 import Darwin
 import AppKit
 
-func input() -> String? {
-    let keyboard = FileHandle.standardInput
-    let inputData = keyboard.availableData
-    let input = String(data: inputData, encoding: String.Encoding.utf8)
-    return input
-}
-
 func printUsage() {
     print("usage: saferm [-f | -i] [-dPRrvW] file ...")
     print("unlink file")
@@ -33,8 +26,8 @@ if argc <= 1 {
 let args = Process.arguments.dropFirst()
 
 var opts = Set<Character>()
-var dirs = Set<String>()
-var files = Set<String>()
+var dirs = Set<URL>()
+var files = Set<URL>()
 for arg in args {
     guard let first = arg.characters.first else {
         break
@@ -58,42 +51,62 @@ for arg in args {
             break
         }
         
+        let url = URL(fileURLWithPath: arg)
         if isDir.boolValue {
-            dirs.insert(arg)
+            dirs.insert(url)
         } else {
-            files.insert(arg)
+            files.insert(url)
         }
     }
 }
 
-var paths:Set<String> = Set<String>()
+var paths:Set<URL> = Set<URL>()
 if opts.contains("r") {
     paths = paths.union(dirs)
 }
 
 paths = paths.union(files)
-let sortedPaths = paths.sorted(by: >)
-
+let sortedPaths = paths.sorted() {$0.path > $1.path}
 let isForced = opts.contains("f")
-for path in paths {
-//    if !isForced {
-//        print("\(path) (y/n)")
-//        while(true)
-//        {
-//            if let input = input() {
-//                input
-//            }
-//        }
-//        
-//    }
+
+if isForced {
+    NSWorkspace.shared().recycle(sortedPaths)
+    { (urlInfo, error) in
+        print(urlInfo)
+        if let err = error {
+            print(err)
+        }
+    }
 }
-print(sortedPaths)
-
-
-//let trashUrls = filemanager.urls(for: .trashDirectory, in: .userDomainMask)
-//guard !trashUrls.isEmpty else {
-//    printUsage()
-//    exit(1)
-//}
-//
+else {
+    for path in sortedPaths {
+        var isYes = false
+        
+        keyboardinputloop: while(true)
+        {
+            print("\(path.path) (y/n): ", terminator: "")
+            
+            if let input = readLine() {
+                switch(input)
+                {
+                case "y", "Y", "yes":
+                    isYes = true
+                    break keyboardinputloop
+                    
+                case "n", "N", "no":
+                    isYes = false
+                    break keyboardinputloop
+                    
+                default:
+                    print("Please input yes or no")
+                    continue keyboardinputloop
+                }
+            }
+        }
+        
+        if isYes {
+            NSWorkspace.shared().recycle([path], completionHandler: { (urlInfo, error) in if let err = error { print(err) } })
+        }
+    }
+}
 
