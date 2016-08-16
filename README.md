@@ -3,4 +3,4 @@
 
 When trying to remove files and dirs, they are moved to Trash.
 
-The project is implemented in Swift 3 with Xcode 8 beta 8
+The project is implemented in Swift 3 with Xcode 8 beta 6
