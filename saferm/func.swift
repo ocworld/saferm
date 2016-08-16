@@ -18,13 +18,13 @@ func parseArgs() -> (opts: Set<Character>, dirs: Set<URL>, files: Set<URL>)?
 {
     let supportedOptions : Set<Character> = ["f","i","d","P","R","r","v","W"]
     
-    let argc = Process.arguments.count
+    let argc = CommandLine.arguments.count
     if argc <= 1 {
         assert(argc > 1)
         return nil
     }
     
-    let args = Process.arguments.dropFirst()
+    let args = CommandLine.arguments.dropFirst()
     
     var opts = Set<Character>()
     var dirs = Set<URL>()
