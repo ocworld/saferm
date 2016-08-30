@@ -34,6 +34,7 @@ func parseArgs() -> (opts: Set<Character>, dirs: Set<URL>, files: Set<URL>)?
             return nil
         }
         
+        print(arg);
         //options
         if first == "-" {
             let dataOpts = arg.characters.dropFirst()
@@ -100,25 +101,21 @@ func moveToTrash(urls: [URL], withForceOption forced: Bool) {
             }
             
             let newUrls = Array(urls.dropFirst())
+            
             if confirm(url) {
                 NSWorkspace.shared().recycle([url]) {
                     (_, error) in
-
-                    if let err = error {
-                        print(err)
-                    }
-                    
-                    if newUrls.isEmpty {
-                        exit(0)
-                    } else {
                         moveToTrash(urls: newUrls, withForceOption: forced)
-                    }
                 }
             } else {
                 DispatchQueue.main.async {
                     moveToTrash(urls: newUrls, withForceOption: forced)
                 }
             }
+        }
+        else
+        {
+            exit(0)
         }
     }
 }
