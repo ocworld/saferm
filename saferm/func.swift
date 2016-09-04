@@ -68,7 +68,7 @@ func parseArgs() -> (opts: Set<Character>, dirs: Set<URL>, files: Set<URL>)?
 func selectedUrls(opts: Set<Character>, dirs: Set<URL>, files: Set<URL>) -> [URL]? {
     var urls:Set<URL> = Set<URL>(files)
     
-    if opts.contains("r") {
+    if opts.contains("r") || opts.contains("d") {
         urls = urls.union(dirs)
     }
     else {
